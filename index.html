@@ -1,0 +1,37 @@
+<html>
+<body>
+
+  <style type="text/css">
+.field {
+  border: 1px solid #aaa;
+  min-height: 100px;
+  padding: 5px;
+}
+  </style>
+
+  <div id="field"></div>
+  <div id="display"></div>
+
+  <script type="text/javascript" src="src/liquid_variable_editor.js"></script>
+  <script type="text/javascript">
+new LiquidVarsEditor(
+  document.getElementById('field'), 
+  {
+    options: [
+      ['visitor.first_name', 'Имя'],
+      ['visitor.last_name', 'Email'],
+      ['account.domain', 'Домен'],
+    ],
+    classWrap: 'field',
+    value: 'Привет, {{visitor.first_name }}, твой аккаунт {{account.domain }}',
+    change: (value) => {
+      document.getElementById('display').innerHTML = value
+    },
+    init: (value) => {
+      document.getElementById('display').innerHTML = value
+    }
+  }
+).init()
+  </script>
+</body>
+</html>
