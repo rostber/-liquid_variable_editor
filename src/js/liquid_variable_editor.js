@@ -2,12 +2,18 @@ class LiquidVarsEditor {
   constructor (el, options) {
     const defaultOptions = {
       classWrap: 'lve',
+      classRow: 'lve__row',
       classValue: 'lve__value',
+      classTools: 'lve__tools',
+      classAdd: 'lve__add',
       classDrop: 'lve__drop',
+      classDropVisible: 'lve__drop_state_visible',
       classDropItem: 'lve__drop-item',
       classText: 'lve__text',
       classLiquid: 'lve__liquid',
       classLiquidRemove: 'lve__liquid-remove',
+      htmlAdd: '+',
+      htmlLiquidRemove: 'x',
       options: [],
       value: '',
       init (value) {},
@@ -24,31 +30,43 @@ class LiquidVarsEditor {
     this.elsLiquid = []
   }
   init () {
-    this.renderEl()
+    this.render()
 
     this.parseContent()
     this.options.init(this.options.value)
   }
-  renderEl () {
+  render () {
     const tmp_el = document.createElement('div')
     tmp_el.innerHTML = this.getHtmlWrap()
     const el = tmp_el.firstChild
     this.el.parentNode.insertBefore(el, this.el)
-    this.el.parentNode.removeChild(this.el)
-    this.el = el
-    this.elValue = this.el.querySelector('[lve-value]')
-    this.elDrop = this.el.querySelector('[lve-drop]')
-    this.elDropItems = this.el.querySelectorAll('[lve-drop-item]')
+    this.el.style.display = 'none'
+
+    this.options.value = this.el.value
+
+    this.elValue = el.querySelector('[lve-value]')
+    this.elAdd = el.querySelector('[lve-add]')
+    this.elDrop = el.querySelector('[lve-drop]')
+    this.elDropItems = el.querySelectorAll('[lve-drop-item]')
+
     this.renderItems()
+
+    this.bind()
   }
   renderItems () {
+    let hasLastText = false
     const html = this.options.value.replace(/(.*?)({{.*?}}|$)/gi, (matched, text, liquid) => {
       let str = ''
-      if (text) str += this.getHtmlText(text)
+      if (text) {
+        hasLastText = true
+        str += this.getHtmlText(text)
+      }
       if (liquid) {
+        hasLastText = false
         const liquidContent = liquid.replace(/({{|}})/gi, '').trim()
         str += this.getHtmlLiquid(liquidContent)
       }
+      if (!hasLastText) str += this.getHtmlText('')
       return str
     })
     this.elValue.innerHTML = html
@@ -57,18 +75,18 @@ class LiquidVarsEditor {
     this.elsLiquid = this.elValue.querySelectorAll('[lve-liquid]')
     this.elsLiquidRemove = this.elValue.querySelectorAll('[lve-liquid-remove]')
 
-    this.bind()
+    this.bindItems()
   }
   getHtmlWrap () {
-    return `<div lve class="${this.options.classWrap}"><div lve-value class="${this.options.classValue}"></div><div lve-drop class="${this.options.classDrop}">${this.getHtmlDropList()}</div></div>`
+    return `<div class="${this.options.classWrap}"><div class="${this.options.classRow}"><div lve-value class="${this.options.classValue}"></div><div class="${this.options.classTools}"><div lve-add class="${this.options.classAdd}">${this.options.htmlAdd}<div lve-drop class="${this.options.classDrop}">${this.getHtmlDropList()}</div></div></div></div></div>`
   }
   getHtmlDropList () {
     return this.options.options.map((option) => {
-      return `<div lve-drop-item class="${this.options.classDropItem}" data-value="${option[0]}" style="cursor: pointer;">${option[1]}</div>`
+      return `<div lve-drop-item class="${this.options.classDropItem}" data-value="${option[0]}">${option[1]}</div>`
     }).join('')
   }
   getHtmlText (value) {
-    return `<span lve-text contenteditable="true" style="outline-style: none;" class="${this.options.classText}">${value}</span>`
+    return `<span lve-text contenteditable="true" class="${this.options.classText}">${value}</span>`
   }
   getHtmlLiquid (value) {
     let label = value
@@ -78,9 +96,22 @@ class LiquidVarsEditor {
         break
       }
     }
-    return `<span lve-liquid data-variable="${value}" class="${this.options.classLiquid}" style="cursor: pointer; padding: 0 2px; margin: 0 1px; background-color: #eee; border-radius: 3px; display: inlne-block;">${label}<span lve-liquid-remove class="${this.options.classLiquidRemove}">x</span></span>`
+    return `<span lve-liquid data-variable="${value}" class="${this.options.classLiquid}">${label}<span lve-liquid-remove class="${this.options.classLiquidRemove}">${this.options.htmlLiquidRemove}</span></span>`
   }
   bind () {
+    this.on('onclick', this.elAdd, (evt) => {
+      evt.stopPropagation()
+      this.addClass(this.elDrop, this.options.classDropVisible)
+    })
+    this.on('onclick', document, (evt) => {
+      this.removeClass(this.elDrop, this.options.classDropVisible)
+    })
+
+    this.on('onclick', this.elDropItems, (evt) => {
+      this.insertValue(evt.target.dataset.value)
+    })
+  }
+  bindItems () {
     this.on('onkeydown', this.elsText, (evt) => {
       this.options.keydown(evt)
       setTimeout(() => {
@@ -92,10 +123,6 @@ class LiquidVarsEditor {
     })
     this.on('onblur', this.elsText, (evt) => {
       this.options.blur(evt)
-    })
-
-    this.on('onclick', this.elDropItems, (evt) => {
-      console.log('insert liquid', evt.target.dataset.value)
     })
 
     this.on('onclick', this.elsLiquidRemove, (evt) => {
@@ -114,16 +141,29 @@ class LiquidVarsEditor {
     }
     else els[eventName] = fn
   }
+  insertValue (value) {
+    this.options.value += `{{${value}}}`
+    this.renderItems()
+    this.options.change(this.options.value)
+  }
   updateValue () {
     this.parseContent()
     this.options.change(this.options.value)
   }
   parseContent () {
     let value = ''
-    const elsItems = this.el.querySelectorAll('[lve-text], [lve-liquid]')
+    const elsItems = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
     for (const elItem of elsItems) {
       value += elItem.hasAttribute('lve-text') ? elItem.innerHTML : `{{${elItem.dataset.variable}}}`
     }
     this.options.value = value
+  }
+  addClass (el, className) {
+    if (el.classList) el.classList.add(className)
+    else el.className += ' ' + className
+  }
+  removeClass (el, className) {
+    if (el.classList) el.classList.remove(className)
+    else el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ')
   }
 }

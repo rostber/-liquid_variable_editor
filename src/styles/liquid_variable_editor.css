@@ -1,0 +1,69 @@
+.lve__row {
+  display: flex;
+}
+.lve__value {
+  flex: 1 0;
+}
+.lve__tools {
+  flex: 0 1;
+}
+.lve__liquid {
+  position: relative;
+  padding: 0 15px 0 2px;
+  display: inline-block;
+  cursor: pointer;
+  margin: 0 1px;
+  background-color: #eee;
+  border-radius: 3px;
+}
+.lve__liquid-remove {
+  position: absolute;
+  right: 2px;
+  top: 50%;
+  color: white;
+  background-color: red;
+  font-size: 0;
+  width: 10px;
+  height: 10px;
+  display: block;
+  border-radius: 50%;
+  margin-top: -5px;
+}
+.lve__text {
+  outline-style: none;
+}
+.lve__tools {
+  position: relative;
+}
+.lve__add {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  background-color: #eee;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 3px;
+}
+.lve__drop {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  min-width: 100px;
+  display: none;
+  background-color: #fff;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1em;
+}
+.lve__drop_state_visible {
+  display: block;
+}
+.lve__drop-item {
+  cursor: pointer;
+  padding: 2px 5px;
+}
+.lve__drop-item:hover {
+  background-color: #eee;
+}

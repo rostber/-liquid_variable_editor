@@ -1,18 +1,22 @@
 <html>
-<body>
+<head>
+  <title>Liquid variable editor</title>
+
+  <link media="all" rel="stylesheet" href="src/styles/liquid_variable_editor.css" />
+  <script type="text/javascript" src="src/js/liquid_variable_editor.js"></script>
 
   <style type="text/css">
 .field {
   border: 1px solid #aaa;
-  min-height: 100px;
+  min-height: 50px;
   padding: 5px;
 }
   </style>
+</head>
+<body>
+  <input type="text" id="field" value="Привет, {{visitor.first_name}}. Твой аккаунт {{account.domain}}" />
+  <p id="displayValue"></p>
 
-  <div id="field"></div>
-  <div id="display"></div>
-
-  <script type="text/javascript" src="src/liquid_variable_editor.js"></script>
   <script type="text/javascript">
 new LiquidVarsEditor(
   document.getElementById('field'), 
@@ -23,12 +27,11 @@ new LiquidVarsEditor(
       ['account.domain', 'Домен'],
     ],
     classWrap: 'field',
-    value: 'Привет, {{visitor.first_name }}, твой аккаунт {{account.domain }}',
     change: (value) => {
-      document.getElementById('display').innerHTML = value
+      document.getElementById('displayValue').innerHTML = value
     },
     init: (value) => {
-      document.getElementById('display').innerHTML = value
+      document.getElementById('displayValue').innerHTML = value
     }
   }
 ).init()
