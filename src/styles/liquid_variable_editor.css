@@ -32,9 +32,6 @@
 .lve__text {
   outline-style: none;
 }
-.lve__tools {
-  position: relative;
-}
 .lve__add {
   width: 30px;
   height: 30px;
@@ -43,6 +40,7 @@
   text-align: center;
   line-height: 30px;
   border-radius: 3px;
+  position: relative;
 }
 .lve__drop {
   position: absolute;
@@ -51,11 +49,12 @@
   min-width: 100px;
   display: none;
   background-color: #fff;
-  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   border-radius: 3px;
   text-align: left;
   font-size: 14px;
   line-height: 1em;
+  z-index: 10;
 }
 .lve__drop_state_visible {
   display: block;
