@@ -64,8 +64,14 @@ class LiquidVarsEditor {
       }
       if (liquid) {
         hasLastText = false
-        const liquidContent = liquid.replace(/({{|}})/gi, '').trim()
-        str += this.getHtmlLiquid(liquidContent)
+        const liquidContent = liquid.replace(/({{|}})/gi, '').trim().split('|')
+        const liquidVariable = liquidContent[0]
+        let liquidDefault = null
+        if (liquidContent[1]) {
+          const res = /default: !?(\"([^\"]*)\"|\'([^\']*)\')/gi.exec(liquidContent[1])
+          liquidDefault = res[2] || res[3] || null
+        }
+        str += this.getHtmlLiquid(liquidVariable.trim(), liquidDefault)
       }
       if (!hasLastText) str += this.getHtmlText('')
       return str
@@ -78,7 +84,7 @@ class LiquidVarsEditor {
     return `<div class="${this.options.classWrap}"><div class="${this.options.classRow}"><div lve-value class="${this.options.classValue}"></div><div class="${this.options.classTools}"><div lve-add class="${this.options.classAdd}">${this.options.htmlAdd}${this.getHtmlDropList()}</div></div></div></div>`
   }
   getHtmlDropList () {
-    const defaultInput = `<input type="text" class="${this.options.classDefaultInput}" />`
+    const defaultInput = `<input type="text" lve-drop-default class="${this.options.classDefaultInput}" />`
     const defaultWrap = `<div class="${this.options.classDefaultWrap}"><label class="${this.options.classDefaultLabel}">${this.options.htmlDefaultLabel}</label>${defaultInput}</div>`
     const list = this.options.options.map((option) => {
       return `<div lve-drop-item class="${this.options.classDropItem}" data-value="${option[0]}">${option[1]}</div>`
@@ -88,7 +94,8 @@ class LiquidVarsEditor {
   getHtmlText (value) {
     return `<span lve-text contenteditable="true" class="${this.options.classText}">${value}</span>`
   }
-  getHtmlLiquid (value) {
+  getHtmlLiquid (value, defaultValue) {
+    defaultValue = defaultValue || ''
     let label = value
     for(const option of this.options.options) {
       if (option[0] === value) {
@@ -96,7 +103,7 @@ class LiquidVarsEditor {
         break
       }
     }
-    return `<span lve-liquid data-variable="${value}" class="${this.options.classLiquid}">${label}<span lve-liquid-remove class="${this.options.classLiquidRemove}">${this.options.htmlLiquidRemove}</span>${this.getHtmlDropList()}</span>`
+    return `<span lve-liquid data-variable="${value}" data-default="${defaultValue}" class="${this.options.classLiquid}">${label}<span lve-liquid-remove class="${this.options.classLiquidRemove}">${this.options.htmlLiquidRemove}</span>${this.getHtmlDropList()}</span>`
   }
   bind () {
     this.on('click', this.elAdd, (evt) => {
@@ -152,13 +159,24 @@ class LiquidVarsEditor {
   bindDropContent (elDrops) {
     this.eachFn(elDrops, (elDrop) => {
       const elItems = elDrop.querySelectorAll('[lve-drop-item]')
+      const elDefault = elDrop.querySelector('[lve-drop-default]')
+      const elParent = elDrop.parentNode
+
+      elDefault.value = elParent.dataset.default || ''
+
       this.on('click', elItems, (evt) => {
-        this.insertValue(evt.target.dataset.value)
+        this.insertValue(evt.target.dataset.value, elDefault.value)
         this.selectionEl = null
         setTimeout(() => {
           this.hideDrop(elDrop)
         }, 0)
       })
+
+      this.on('change', elDefault, (evt) => {
+        elParent.setAttribute('data-default', evt.target.value)
+        this.updateValue()
+      })
+
     })
   }
   showDrop (elDrop) {
@@ -170,12 +188,10 @@ class LiquidVarsEditor {
     this.removeClass(elDrop, this.options.classDropVisible)
     this.removeClass(elDrop, this.options.classDropAlignLeft)
   }
-  insertValue (value) {
+  insertValue (value, defaultValue) {
     if (!this.selectionEl) {
       // Вставка в конец текста
-      this.options.value += `{{${value}}}`
-      this.renderItems()
-      this.options.change(this.options.value)
+      this.elValue.insertAdjacentHTML('beforeEnd', this.getHtmlLiquid(value, defaultValue))
     } else {
       // Вставка в середине текста
       const text = this.selectionEl.innerHTML
@@ -185,12 +201,11 @@ class LiquidVarsEditor {
 
       this.selectionEl.insertAdjacentHTML('beforebegin', this.getHtmlText(textFirst))
       this.selectionEl.insertAdjacentHTML('afterend', this.getHtmlText(textLast))
-      this.selectionEl.insertAdjacentHTML('afterend', this.getHtmlLiquid(value))
+      this.selectionEl.insertAdjacentHTML('afterend', this.getHtmlLiquid(value, defaultValue))
       this.selectionEl.parentNode.removeChild(this.selectionEl)
-
-      this.updateValue()
-      this.renderItems()
     }
+    this.updateValue()
+    this.renderItems()
   }
   updateValue () {
     this.parseContent()
@@ -200,7 +215,8 @@ class LiquidVarsEditor {
     let value = ''
     const elsItems = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
     for (const elItem of elsItems) {
-      value += elItem.hasAttribute('lve-text') ? elItem.innerHTML : `{{${elItem.dataset.variable}}}`
+      const defaultPostfix = elItem.dataset.default ? ` | default: "${elItem.dataset.default}"` : ''
+      value += elItem.hasAttribute('lve-text') ? elItem.innerHTML : `{{${elItem.dataset.variable}${defaultPostfix}}}`
     }
     this.options.value = value
   }

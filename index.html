@@ -14,7 +14,7 @@
   </style>
 </head>
 <body>
-  <input type="text" id="field" value="Привет, {{visitor.first_name}}. Твой аккаунт {{account.domain}}" />
+  <input type="text" id="field" value="Привет, {{visitor.first_name | default: 'Друг'}}. Твой аккаунт {{account.domain}}" />
   <p id="displayValue"></p>
 
   <script type="text/javascript">
