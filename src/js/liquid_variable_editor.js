@@ -8,12 +8,17 @@ class LiquidVarsEditor {
       classAdd: 'lve__add',
       classDrop: 'lve__drop',
       classDropVisible: 'lve__drop_state_visible',
+      classDropAlignLeft: 'lve__drop_align_left',
       classDropItem: 'lve__drop-item',
       classText: 'lve__text',
       classLiquid: 'lve__liquid',
       classLiquidRemove: 'lve__liquid-remove',
+      classDefaultWrap: 'lve__drop-default-wrap',
+      classDefaultLabel: 'lve__drop-default-label',
+      classDefaultInput: 'lve__drop-default-input',
       htmlAdd: '+',
       htmlLiquidRemove: 'x',
+      htmlDefaultLabel: 'По умолчанию:',
       options: [],
       value: '',
       init (value) {},
@@ -24,12 +29,6 @@ class LiquidVarsEditor {
     }
     this.options = Object.assign(defaultOptions, options)
     this.el = el
-    this.elValue = null
-    this.elDrop = null
-    this.elsText = []
-    this.elsLiquid = []
-    this.selectionEl = null
-    this.selectionPoistion = null
   }
   init () {
     this.render()
@@ -46,10 +45,10 @@ class LiquidVarsEditor {
 
     this.options.value = this.el.value
 
+    this.elWrap = el
     this.elValue = el.querySelector('[lve-value]')
     this.elAdd = el.querySelector('[lve-add]')
-    this.elDrop = el.querySelector('[lve-drop]')
-    this.elDropItems = el.querySelectorAll('[lve-drop-item]')
+    this.elAddDrop = el.querySelector('[lve-drop]')
 
     this.renderItems()
 
@@ -76,12 +75,15 @@ class LiquidVarsEditor {
     this.bindItems()
   }
   getHtmlWrap () {
-    return `<div class="${this.options.classWrap}"><div class="${this.options.classRow}"><div lve-value class="${this.options.classValue}"></div><div class="${this.options.classTools}"><div lve-add class="${this.options.classAdd}">${this.options.htmlAdd}<div lve-drop class="${this.options.classDrop}">${this.getHtmlDropList()}</div></div></div></div></div>`
+    return `<div class="${this.options.classWrap}"><div class="${this.options.classRow}"><div lve-value class="${this.options.classValue}"></div><div class="${this.options.classTools}"><div lve-add class="${this.options.classAdd}">${this.options.htmlAdd}${this.getHtmlDropList()}</div></div></div></div>`
   }
   getHtmlDropList () {
-    return this.options.options.map((option) => {
+    const defaultInput = `<input type="text" class="${this.options.classDefaultInput}" />`
+    const defaultWrap = `<div class="${this.options.classDefaultWrap}"><label class="${this.options.classDefaultLabel}">${this.options.htmlDefaultLabel}</label>${defaultInput}</div>`
+    const list = this.options.options.map((option) => {
       return `<div lve-drop-item class="${this.options.classDropItem}" data-value="${option[0]}">${option[1]}</div>`
     }).join('')
+    return `<div lve-drop class="${this.options.classDrop}">${defaultWrap}${list}</div>`
   }
   getHtmlText (value) {
     return `<span lve-text contenteditable="true" class="${this.options.classText}">${value}</span>`
@@ -94,26 +96,24 @@ class LiquidVarsEditor {
         break
       }
     }
-    return `<span lve-liquid data-variable="${value}" class="${this.options.classLiquid}">${label}<span lve-liquid-remove class="${this.options.classLiquidRemove}">${this.options.htmlLiquidRemove}</span></span>`
+    return `<span lve-liquid data-variable="${value}" class="${this.options.classLiquid}">${label}<span lve-liquid-remove class="${this.options.classLiquidRemove}">${this.options.htmlLiquidRemove}</span>${this.getHtmlDropList()}</span>`
   }
   bind () {
     this.on('click', this.elAdd, (evt) => {
       evt.stopPropagation()
-      this.addClass(this.elDrop, this.options.classDropVisible)
+      this.showDrop(this.elAddDrop)
     })
     this.on('click', document, (evt) => {
-      this.removeClass(this.elDrop, this.options.classDropVisible)
+      this.hideDrop(this.elsDrop)
     })
 
-    this.on('click', this.elDropItems, (evt) => {
-      this.insertValue(evt.target.dataset.value)
-      this.selectionEl = null
-    })
+    this.bindDropContent(this.elAddDrop)
   }
   bindItems () {
     this.elsText = this.elValue.querySelectorAll('[lve-text]')
     this.elsLiquid = this.elValue.querySelectorAll('[lve-liquid]')
     this.elsLiquidRemove = this.elValue.querySelectorAll('[lve-liquid-remove]')
+    this.elsDrop = this.elWrap.querySelectorAll('[lve-drop]')
 
     this.on('keydown', this.elsText, (evt) => {
       this.options.keydown(evt)
@@ -140,28 +140,44 @@ class LiquidVarsEditor {
       this.renderItems()
       this.selectionEl = null
     })
-  }
-  on (eventName, els, fn) {
-    if (els.length == 0) return false
-    if (els.length > 0) {
-      els.forEach((el) => {
-        this.onEvent(eventName, el, fn)
-      })
-    }
-    else this.onEvent(eventName, els, fn)
-  }
-  onEvent (eventNames, el, fn) {
-    eventNames.split(' ').forEach((eventName) => {
-      el.addEventListener(eventName, fn)
+
+    this.on('click', this.elsLiquid, (evt) => {
+      evt.stopPropagation()
+      const elLiquidDrop = evt.target.querySelector('[lve-drop]')
+      if (elLiquidDrop) this.showDrop(elLiquidDrop)
     })
+
+    this.bindDropContent(this.elValue.querySelectorAll('[lve-drop]'))
+  }
+  bindDropContent (elDrops) {
+    this.eachFn(elDrops, (elDrop) => {
+      const elItems = elDrop.querySelectorAll('[lve-drop-item]')
+      this.on('click', elItems, (evt) => {
+        this.insertValue(evt.target.dataset.value)
+        this.selectionEl = null
+        setTimeout(() => {
+          this.hideDrop(elDrop)
+        }, 0)
+      })
+    })
+  }
+  showDrop (elDrop) {
+    this.hideDrop(this.elsDrop)
+    this.addClass(elDrop, this.options.classDropVisible)
+    if (elDrop.getBoundingClientRect().left < document.body.offsetWidth / 2) this.addClass(elDrop, this.options.classDropAlignLeft)
+  }
+  hideDrop (elDrop) {
+    this.removeClass(elDrop, this.options.classDropVisible)
+    this.removeClass(elDrop, this.options.classDropAlignLeft)
   }
   insertValue (value) {
     if (!this.selectionEl) {
+      // Вставка в конец текста
       this.options.value += `{{${value}}}`
       this.renderItems()
       this.options.change(this.options.value)
     } else {
-      // TODO: добавление внутрь text
+      // Вставка в середине текста
       const text = this.selectionEl.innerHTML
       const textLength = text.length
       const textFirst = text.slice(0, this.selectionPoistion)
@@ -188,13 +204,31 @@ class LiquidVarsEditor {
     }
     this.options.value = value
   }
-  addClass (el, className) {
-    if (el.classList) el.classList.add(className)
-    else el.className += ' ' + className
+  on (eventNames, els, fn) {
+    this.eachFn(els, (el) => {
+      for (const eventName of eventNames.split(' ')) el.addEventListener(eventName, fn)
+    })
   }
-  removeClass (el, className) {
-    if (el.classList) el.classList.remove(className)
-    else el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ')
+  addClass (els, className) {
+    this.eachFn(els, (el) => {
+      if (el.classList) el.classList.add(className)
+      else el.className += ' ' + className
+    })
+  }
+  removeClass (els, className) {
+    this.eachFn(els, (el) => {
+      if (el.classList) el.classList.remove(className)
+      else el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ')
+    })
+  }
+  eachFn (els, fn) {
+    if (!els) return false
+    if (els.length > 0) {
+      for (const el of els) {
+        fn(el)
+      }
+    }
+    else if (els.length != 0) fn(els)
   }
   getCaretPosition (editableDiv) {
     let caretPos = 0

@@ -59,6 +59,32 @@
 .lve__drop_state_visible {
   display: block;
 }
+.lve__drop_align_left {
+  left: 0;
+  right: auto;
+}
+.lve__drop-default-wrap {
+  display: flex;
+  padding: 5px 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #aaa;
+}
+.lve__drop-default-label {
+  flex: 0 1;
+  font-size: 12px;
+  line-height: 17px;
+  margin-right: 5px;
+  white-space: nowrap;
+}
+.lve__drop-default-input {
+  flex: 1 0 auto;
+  border: 1px solid #aaa;
+  font-size: 12px;
+  line-height: 15px;
+  padding-left: 5px;
+  box-sizing: border-box;
+  outline-style: none;
+}
 .lve__drop-item {
   cursor: pointer;
   padding: 2px 5px;
