@@ -166,15 +166,16 @@ class LiquidVarsEditor {
 
       this.on('click', elItems, (evt) => {
         this.insertValue(evt.target.dataset.value, elDefault.value)
-        this.selectionEl = null
         setTimeout(() => {
           this.hideDrop(elDrop)
         }, 0)
+        this.selectionEl = null
       })
 
       this.on('change', elDefault, (evt) => {
         elParent.setAttribute('data-default', evt.target.value)
         this.updateValue()
+        this.selectionEl = null
       })
 
     })
