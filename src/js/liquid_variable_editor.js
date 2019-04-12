@@ -142,6 +142,7 @@ class LiquidVarsEditor {
     })
   }
   on (eventName, els, fn) {
+    if (els.length == 0) return false
     if (els.length > 0) {
       els.forEach((el) => {
         this.onEvent(eventName, el, fn)
@@ -170,9 +171,9 @@ class LiquidVarsEditor {
       this.selectionEl.insertAdjacentHTML('afterend', this.getHtmlText(textLast))
       this.selectionEl.insertAdjacentHTML('afterend', this.getHtmlLiquid(value))
       this.selectionEl.parentNode.removeChild(this.selectionEl)
-      this.bindItems()
 
       this.updateValue()
+      this.renderItems()
     }
   }
   updateValue () {
