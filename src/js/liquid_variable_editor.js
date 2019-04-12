@@ -165,7 +165,12 @@ class LiquidVarsEditor {
       elDefault.value = elParent.dataset.default || ''
 
       this.on('click', elItems, (evt) => {
-        this.insertValue(evt.target.dataset.value, elDefault.value)
+        if (elParent.hasAttribute('lve-liquid')) {
+          elParent.setAttribute('data-variable', evt.target.dataset.value)
+          this.updateValue()
+          this.renderItems()
+        } else this.insertValue(evt.target.dataset.value, elDefault.value)
+
         setTimeout(() => {
           this.hideDrop(elDrop)
         }, 0)
