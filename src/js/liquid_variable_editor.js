@@ -58,12 +58,12 @@ class LiquidVarsEditor {
     let hasLastText = false
     const html = this.options.value.replace(/(.*?)({{.*?}}|$)/gi, (matched, text, liquid) => {
       let str = ''
+      hasLastText = false
       if (text) {
         hasLastText = true
         str += this.getHtmlText(text)
       }
       if (liquid) {
-        hasLastText = false
         const liquidContent = liquid.replace(/({{|}})/gi, '').trim().split('|')
         const liquidVariable = liquidContent[0]
         let liquidDefault = null
@@ -124,6 +124,29 @@ class LiquidVarsEditor {
 
     this.on('keydown', this.elsText, (evt) => {
       this.options.keydown(evt)
+
+        // Определяется нажатие backspace для удаление liquid элементов
+        const key = evt.keyCode || evt.charCode
+        if ( key == 8 || key == 46 ) {
+          if (this.getCaretPosition(evt.target) == 0) {
+            const childIndex = this.getChildIndex(this.selectionEl)
+            if (childIndex > 0) {
+              const elsItems = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
+              const prevChildIndex = childIndex - 1
+              elsItems[prevChildIndex].parentNode.removeChild(elsItems[prevChildIndex])
+
+              this.updateValue()
+              this.renderItems()
+
+              // Курсор устанавливается на элемент перед удаленным или на текущий
+              const elsItemsNew = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
+              const elFocus = prevChildIndex > 0 ? elsItemsNew[prevChildIndex - 1] : elsItemsNew[prevChildIndex]
+              this.setCaretEnd(elFocus)
+
+            }
+          }
+        }
+
       setTimeout(() => {
         this.updateValue()
       }, 0)
@@ -266,14 +289,34 @@ class LiquidVarsEditor {
     } else if (document.selection && document.selection.createRange) {
       range = document.selection.createRange()
       if (range.parentElement() == editableDiv) {
-        var tempEl = document.createElement("span")
+        var tempEl = document.createElement('span')
         editableDiv.insertBefore(tempEl, editableDiv.firstChild)
         var tempRange = range.duplicate()
         tempRange.moveToElementText(tempEl)
-        tempRange.setEndPoint("EndToEnd", range)
+        tempRange.setEndPoint('EndToEnd', range)
         caretPos = tempRange.text.length
       }
     }
     return caretPos
+  }
+  getChildIndex (child_element) {
+    const parent_element = child_element.parentNode
+    return Array.prototype.indexOf.call(parent_element.children, child_element)
+  }
+  setCaretEnd (el) {
+    el.focus()
+    if (typeof window.getSelection != 'undefined' && typeof document.createRange != 'undefined') {
+      var range = document.createRange()
+      range.selectNodeContents(el)
+      range.collapse(false)
+      var sel = window.getSelection()
+      sel.removeAllRanges()
+      sel.addRange(range)
+    } else if (typeof document.body.createTextRange != 'undefined') {
+      var textRange = document.body.createTextRange()
+      textRange.moveToElementText(el)
+      textRange.collapse(false)
+      textRange.select()
+    }
   }
 }
