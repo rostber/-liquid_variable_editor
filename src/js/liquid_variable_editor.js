@@ -1,4 +1,4 @@
-class LiquidVarsEditor {
+/*export default */class LiquidVarsEditor {
   constructor (el, options) {
     const defaultOptions = {
       classWrap: 'lve',
@@ -37,9 +37,9 @@ class LiquidVarsEditor {
     this.options.init(this.options.value)
   }
   render () {
-    const tmp_el = document.createElement('div')
-    tmp_el.innerHTML = this.getHtmlWrap()
-    const el = tmp_el.firstChild
+    const tmpEl = document.createElement('div')
+    tmpEl.innerHTML = this.getHtmlWrap()
+    const el = tmpEl.firstChild
     this.el.parentNode.insertBefore(el, this.el)
     this.el.style.display = 'none'
 
@@ -56,7 +56,7 @@ class LiquidVarsEditor {
   }
   renderItems () {
     let hasLastText = false
-    const html = this.options.value.replace(/(.*?)({{.*?}}|$)/gi, (matched, text, liquid) => {
+    const html = this.options.value.replace(new RegExp('(.*?)({{.*?}}|$)', 'gi'), (matched, text, liquid) => {
       let str = ''
       hasLastText = false
       if (text) {
@@ -64,11 +64,11 @@ class LiquidVarsEditor {
         str += this.getHtmlText(text)
       }
       if (liquid) {
-        const liquidContent = liquid.replace(/({{|}})/gi, '').trim().split('|')
+        const liquidContent = liquid.replace(new RegExp('({{|}})', 'gi'), '').trim().split('|')
         const liquidVariable = liquidContent[0]
         let liquidDefault = null
         if (liquidContent[1]) {
-          const res = /default: !?(\"([^\"]*)\"|\'([^\']*)\')/gi.exec(liquidContent[1])
+          const res = new RegExp('default: !?("([^"]*)"|\'([^\']*)\')', 'gi').exec(liquidContent[1])
           liquidDefault = res[2] || res[3] || null
         }
         str += this.getHtmlLiquid(liquidVariable.trim(), liquidDefault)
@@ -97,7 +97,7 @@ class LiquidVarsEditor {
   getHtmlLiquid (value, defaultValue) {
     defaultValue = defaultValue || ''
     let label = value
-    for(const option of this.options.options) {
+    for (const option of this.options.options) {
       if (option[0] === value) {
         label = option[1]
         break
@@ -125,27 +125,26 @@ class LiquidVarsEditor {
     this.on('keydown', this.elsText, (evt) => {
       this.options.keydown(evt)
 
-        // Определяется нажатие backspace для удаление liquid элементов
-        const key = evt.keyCode || evt.charCode
-        if ( key == 8 || key == 46 ) {
-          if (this.getCaretPosition(evt.target) == 0) {
-            const childIndex = this.getChildIndex(this.selectionEl)
-            if (childIndex > 0) {
-              const elsItems = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
-              const prevChildIndex = childIndex - 1
-              elsItems[prevChildIndex].parentNode.removeChild(elsItems[prevChildIndex])
+      // Определяется нажатие backspace для удаление liquid элементов
+      const key = evt.keyCode || evt.charCode
+      if (key === 8 || key === 46) {
+        if (this.getCaretPosition(evt.target) === 0) {
+          const childIndex = this.getChildIndex(this.selectionEl)
+          if (childIndex > 0) {
+            const elsItems = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
+            const prevChildIndex = childIndex - 1
+            elsItems[prevChildIndex].parentNode.removeChild(elsItems[prevChildIndex])
 
-              this.updateValue()
-              this.renderItems()
+            this.updateValue()
+            this.renderItems()
 
-              // Курсор устанавливается на элемент перед удаленным или на текущий
-              const elsItemsNew = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
-              const elFocus = prevChildIndex > 0 ? elsItemsNew[prevChildIndex - 1] : elsItemsNew[prevChildIndex]
-              this.setCaretEnd(elFocus)
-
-            }
+            // Курсор устанавливается на элемент перед удаленным или на текущий
+            const elsItemsNew = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
+            const elFocus = prevChildIndex > 0 ? elsItemsNew[prevChildIndex - 1] : elsItemsNew[prevChildIndex]
+            this.setCaretEnd(elFocus)
           }
         }
+      }
 
       setTimeout(() => {
         this.updateValue()
@@ -205,7 +204,6 @@ class LiquidVarsEditor {
         this.updateValue()
         this.selectionEl = null
       })
-
     })
   }
   showDrop (elDrop) {
@@ -223,7 +221,7 @@ class LiquidVarsEditor {
       this.elValue.insertAdjacentHTML('beforeEnd', this.getHtmlLiquid(value, defaultValue))
     } else {
       // Вставка в середине текста
-      const text = this.selectionEl.innerHTML
+      const text = this.sanitize(this.selectionEl.innerHTML)
       const textLength = text.length
       const textFirst = text.slice(0, this.selectionPoistion)
       const textLast = text.slice(this.selectionPoistion, textLength)
@@ -272,8 +270,7 @@ class LiquidVarsEditor {
       for (const el of els) {
         fn(el)
       }
-    }
-    else if (els.length != 0) fn(els)
+    } else if (els.length !== 0) fn(els)
   }
   getCaretPosition (editableDiv) {
     let caretPos = 0
@@ -282,13 +279,13 @@ class LiquidVarsEditor {
       sel = window.getSelection()
       if (sel.rangeCount) {
         range = sel.getRangeAt(0)
-        if (range.commonAncestorContainer.parentNode == editableDiv) {
+        if (range.commonAncestorContainer.parentNode === editableDiv) {
           caretPos = range.endOffset
         }
       }
     } else if (document.selection && document.selection.createRange) {
       range = document.selection.createRange()
-      if (range.parentElement() == editableDiv) {
+      if (range.parentElement() === editableDiv) {
         var tempEl = document.createElement('span')
         editableDiv.insertBefore(tempEl, editableDiv.firstChild)
         var tempRange = range.duplicate()
@@ -299,24 +296,27 @@ class LiquidVarsEditor {
     }
     return caretPos
   }
-  getChildIndex (child_element) {
-    const parent_element = child_element.parentNode
-    return Array.prototype.indexOf.call(parent_element.children, child_element)
+  getChildIndex (childElement) {
+    const parentElement = childElement.parentNode
+    return Array.prototype.indexOf.call(parentElement.children, childElement)
   }
   setCaretEnd (el) {
     el.focus()
-    if (typeof window.getSelection != 'undefined' && typeof document.createRange != 'undefined') {
+    if (typeof window.getSelection !== 'undefined' && typeof document.createRange !== 'undefined') {
       var range = document.createRange()
       range.selectNodeContents(el)
       range.collapse(false)
       var sel = window.getSelection()
       sel.removeAllRanges()
       sel.addRange(range)
-    } else if (typeof document.body.createTextRange != 'undefined') {
+    } else if (typeof document.body.createTextRange !== 'undefined') {
       var textRange = document.body.createTextRange()
       textRange.moveToElementText(el)
       textRange.collapse(false)
       textRange.select()
     }
+  }
+  sanitize (text) {
+    return text.replace('&nbsp;', '')
   }
 }
