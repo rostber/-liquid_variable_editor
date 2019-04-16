@@ -42,41 +42,49 @@
   border-radius: 3px;
   position: relative;
 }
-.lve__drop {
+
+.lve-drop {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: none;
+  z-index: 100;
+  width: 1px;
+  height: 1px;
+}
+.lve-drop__content {
   position: absolute;
   right: 0;
-  top: 100%;
-  min-width: 100px;
-  display: none;
+  top: 0;
   background-color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   border-radius: 3px;
   text-align: left;
   font-size: 14px;
   line-height: 1em;
-  z-index: 10;
+  min-width: 100px;
 }
-.lve__drop_state_visible {
+.lve-drop_state_visible {
   display: block;
 }
-.lve__drop_align_left {
+.lve-drop_align_left .lve-drop__content {
   left: 0;
   right: auto;
 }
-.lve__drop-default-wrap {
+.lve-drop__default-wrap {
   display: flex;
   padding: 5px 5px;
   margin-bottom: 5px;
   border-bottom: 1px solid #aaa;
 }
-.lve__drop-default-label {
+.lve-drop__default-label {
   flex: 0 1;
   font-size: 12px;
   line-height: 17px;
   margin-right: 5px;
   white-space: nowrap;
 }
-.lve__drop-default-input {
+.lve-drop__default-input {
   flex: 1 0 auto;
   border: 1px solid #aaa;
   font-size: 12px;
@@ -85,10 +93,10 @@
   box-sizing: border-box;
   outline-style: none;
 }
-.lve__drop-item {
+.lve-drop__item {
   cursor: pointer;
   padding: 2px 5px;
 }
-.lve__drop-item:hover {
+.lve-drop__item:hover {
   background-color: #eee;
 }

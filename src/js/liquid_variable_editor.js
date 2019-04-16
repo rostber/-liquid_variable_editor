@@ -6,16 +6,17 @@
       classValue: 'lve__value',
       classTools: 'lve__tools',
       classAdd: 'lve__add',
-      classDrop: 'lve__drop',
-      classDropVisible: 'lve__drop_state_visible',
-      classDropAlignLeft: 'lve__drop_align_left',
-      classDropItem: 'lve__drop-item',
       classText: 'lve__text',
       classLiquid: 'lve__liquid',
       classLiquidRemove: 'lve__liquid-remove',
-      classDefaultWrap: 'lve__drop-default-wrap',
-      classDefaultLabel: 'lve__drop-default-label',
-      classDefaultInput: 'lve__drop-default-input',
+      classDrop: 'lve-drop',
+      classDropContent: 'lve-drop__content',
+      classDropVisible: 'lve-drop_state_visible',
+      classDropAlignLeft: 'lve-drop_align_left',
+      classDropItem: 'lve-drop__item',
+      classDefaultWrap: 'lve-drop__default-wrap',
+      classDefaultLabel: 'lve-drop__default-label',
+      classDefaultInput: 'lve-drop__default-input',
       htmlAdd: '+',
       htmlLiquidRemove: 'x',
       htmlDefaultLabel: 'По умолчанию:',
@@ -51,6 +52,7 @@
     this.elAddDrop = el.querySelector('[lve-drop]')
 
     this.renderItems()
+    this.renderDrop()
 
     this.bind()
   }
@@ -80,8 +82,15 @@
 
     this.bindItems()
   }
+  renderDrop () {
+    const tmpEl = document.createElement('div')
+    tmpEl.innerHTML = this.getHtmlDropList()
+    document.body.appendChild(tmpEl)
+    this.elDrop = tmpEl.firstChild
+    this.elDropContent = this.elDrop.querySelector('[lve-drop-content]')
+  }
   getHtmlWrap () {
-    return `<div class="${this.options.classWrap}"><div class="${this.options.classRow}"><div lve-value class="${this.options.classValue}"></div><div class="${this.options.classTools}"><div lve-add class="${this.options.classAdd}">${this.options.htmlAdd}${this.getHtmlDropList()}</div></div></div></div>`
+    return `<div class="${this.options.classWrap}"><div class="${this.options.classRow}"><div lve-value class="${this.options.classValue}"></div><div class="${this.options.classTools}"><div lve-add class="${this.options.classAdd}">${this.options.htmlAdd}</div></div></div></div>`
   }
   getHtmlDropList () {
     const defaultInput = `<input type="text" lve-drop-default class="${this.options.classDefaultInput}" />`
@@ -89,7 +98,7 @@
     const list = this.options.options.map((option) => {
       return `<div lve-drop-item class="${this.options.classDropItem}" data-value="${option[0]}">${option[1]}</div>`
     }).join('')
-    return `<div lve-drop class="${this.options.classDrop}">${defaultWrap}${list}</div>`
+    return `<div lve-drop class="${this.options.classDrop}"><div lve-drop-content class="${this.options.classDropContent}">${defaultWrap}${list}</div></div>`
   }
   getHtmlText (value) {
     return `<span lve-text contenteditable="true" class="${this.options.classText}">${value}</span>`
@@ -103,15 +112,18 @@
         break
       }
     }
-    return `<span lve-liquid data-variable="${value}" data-default="${defaultValue}" class="${this.options.classLiquid}">${label}<span lve-liquid-remove class="${this.options.classLiquidRemove}">${this.options.htmlLiquidRemove}</span>${this.getHtmlDropList()}</span>`
+    return `<span lve-liquid data-variable="${value}" data-default="${defaultValue}" class="${this.options.classLiquid}">${label}<span lve-liquid-remove class="${this.options.classLiquidRemove}">${this.options.htmlLiquidRemove}</span></span>`
   }
   bind () {
     this.on('click', this.elAdd, (evt) => {
       evt.stopPropagation()
-      this.showDrop(this.elAddDrop)
+      this.showDrop()
     })
     this.on('click', document, (evt) => {
-      this.hideDrop(this.elsDrop)
+      this.hideDrop()
+    })
+    this.on('click', this.elDrop, (evt) => {
+      evt.stopPropagation()
     })
     // При клике внутри блока нужно ставить курсор на последний элемент
     this.on('click', this.elValue, (evt) => {
@@ -123,7 +135,7 @@
         this.selectionEl = elText
       }
     })
-    this.bindDropContent(this.elAddDrop)
+    this.bindDropContent()
   }
   bindItems () {
     this.elsText = this.elValue.querySelectorAll('[lve-text]')
@@ -159,7 +171,7 @@
         this.updateValue()
       }, 0)
     })
-    this.on('mousedown mouseup keydown keyup', this.elsText, (evt) => {
+    this.on('mouseup keyup', this.elsText, (evt) => {
       this.selectionPoistion = this.getCaretPosition(evt.target)
     })
     this.on('focus', this.elsText, (evt) => {
@@ -181,48 +193,47 @@
 
     this.on('click', this.elsLiquid, (evt) => {
       evt.stopPropagation()
-      const elLiquidDrop = evt.target.querySelector('[lve-drop]')
-      if (elLiquidDrop) this.showDrop(elLiquidDrop)
+      this.showDrop(evt.target)
     })
-
-    this.bindDropContent(this.elValue.querySelectorAll('[lve-drop]'))
   }
-  bindDropContent (elDrops) {
-    this.eachFn(elDrops, (elDrop) => {
-      const elItems = elDrop.querySelectorAll('[lve-drop-item]')
-      const elDefault = elDrop.querySelector('[lve-drop-default]')
-      const elParent = elDrop.parentNode
+  bindDropContent () {
+    this.elDropItems = this.elDrop.querySelectorAll('[lve-drop-item]')
+    this.elDropDefault = this.elDrop.querySelector('[lve-drop-default]')
 
-      elDefault.value = elParent.dataset.default || ''
-
-      this.on('click', elItems, (evt) => {
-        if (elParent.hasAttribute('lve-liquid')) {
-          elParent.setAttribute('data-variable', evt.target.dataset.value)
-          this.updateValue()
-          this.renderItems()
-        } else this.insertValue(evt.target.dataset.value, elDefault.value)
-
-        setTimeout(() => {
-          this.hideDrop(elDrop)
-        }, 0)
-        this.selectionEl = null
-      })
-
-      this.on('change', elDefault, (evt) => {
-        elParent.setAttribute('data-default', evt.target.value)
+    this.on('click', this.elDropItems, (evt) => {
+      if (this.elDropEditLiquid) {
+        this.elDropEditLiquid.setAttribute('data-variable', evt.target.dataset.value)
         this.updateValue()
-        this.selectionEl = null
-      })
+        this.renderItems()
+      } else this.insertValue(evt.target.dataset.value, this.elDropDefault.value)
+
+      setTimeout(() => {
+        this.hideDrop()
+      }, 0)
+      this.selectionEl = null
+    })
+
+    this.on('change', this.elDropDefault, (evt) => {
+      if (this.elDropEditLiquid) this.elDropEditLiquid.setAttribute('data-default', evt.target.value)
+      this.updateValue()
+      this.selectionEl = null
     })
   }
-  showDrop (elDrop) {
-    this.hideDrop(this.elsDrop)
-    this.addClass(elDrop, this.options.classDropVisible)
-    if (elDrop.getBoundingClientRect().left < document.body.offsetWidth / 2) this.addClass(elDrop, this.options.classDropAlignLeft)
+  showDrop (elDropEditLiquid) {
+    this.elDropEditLiquid = elDropEditLiquid
+
+    this.elDrop.style.left = elDropEditLiquid ? elDropEditLiquid.getBoundingClientRect().left : this.elAdd.getBoundingClientRect().left
+    this.elDrop.style.top = elDropEditLiquid ? elDropEditLiquid.getBoundingClientRect().top : this.elAdd.getBoundingClientRect().top
+
+    this.elDropDefault.value = elDropEditLiquid ? (elDropEditLiquid.dataset.default || '') : ''
+
+    this.hideDrop()
+    this.addClass(this.elDrop, this.options.classDropVisible)
+    if (this.elDropContent.getBoundingClientRect().left < document.body.offsetWidth / 2) this.addClass(this.elDrop, this.options.classDropAlignLeft)
   }
-  hideDrop (elDrop) {
-    this.removeClass(elDrop, this.options.classDropVisible)
-    this.removeClass(elDrop, this.options.classDropAlignLeft)
+  hideDrop () {
+    this.removeClass(this.elDrop, this.options.classDropVisible)
+    this.removeClass(this.elDrop, this.options.classDropAlignLeft)
   }
   insertValue (value, defaultValue) {
     if (!this.selectionEl) {
