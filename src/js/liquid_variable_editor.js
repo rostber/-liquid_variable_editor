@@ -118,7 +118,7 @@
       evt.stopPropagation()
       evt.preventDefault()
       if (evt.target === this.elValue) {
-        const elText= this.elsText[this.elsText.length - 1]
+        const elText = this.elsText[this.elsText.length - 1]
         this.setCaretEnd(elText)
         this.selectionEl = elText
       }
@@ -282,19 +282,19 @@
     } else if (els.length !== 0) fn(els)
   }
   getCaretPosition (element) {
-    let caretOffset = 0;
-    if (typeof window.getSelection != 'undefined') {
-        const range = window.getSelection().getRangeAt(0)
-        const preCaretRange = range.cloneRange()
-        preCaretRange.selectNodeContents(element)
-        preCaretRange.setEnd(range.endContainer, range.endOffset)
-        caretOffset = preCaretRange.toString().length
-    } else if (typeof document.selection != 'undefined' && document.selection.type != 'Control') {
-        const textRange = document.selection.createRange()
-        const preCaretTextRange = document.body.createTextRange()
-        preCaretTextRange.moveToElementText(element)
-        preCaretTextRange.setEndPoint('EndToEnd', textRange)
-        caretOffset = preCaretTextRange.text.length
+    let caretOffset = 0
+    if (typeof window.getSelection !== 'undefined') {
+      const range = window.getSelection().getRangeAt(0)
+      const preCaretRange = range.cloneRange()
+      preCaretRange.selectNodeContents(element)
+      preCaretRange.setEnd(range.endContainer, range.endOffset)
+      caretOffset = preCaretRange.toString().length
+    } else if (typeof document.selection !== 'undefined' && document.selection.type !== 'Control') {
+      const textRange = document.selection.createRange()
+      const preCaretTextRange = document.body.createTextRange()
+      preCaretTextRange.moveToElementText(element)
+      preCaretTextRange.setEndPoint('EndToEnd', textRange)
+      caretOffset = preCaretTextRange.text.length
     }
     return caretOffset
   }
