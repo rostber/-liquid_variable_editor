@@ -113,7 +113,15 @@
     this.on('click', document, (evt) => {
       this.hideDrop(this.elsDrop)
     })
-
+    // При клике внутри блока нужно ставить курсор на последний элемент
+    this.on('click', this.elValue, (evt) => {
+      evt.stopPropagation()
+      evt.preventDefault()
+      if (evt.target === this.elValue) {
+        this.setCaretEnd(this.elsText[this.elsText.length - 1])
+        this.selectionEl = null
+      }
+    })
     this.bindDropContent(this.elAddDrop)
   }
   bindItems () {
