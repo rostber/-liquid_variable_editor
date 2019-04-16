@@ -64,10 +64,10 @@ class LiquidVarsEditorHelpers {
     }
   }
   decode (text) {
-    return text.replace(new RegExp('&nbsp;', 'gi'), ' ').replace(new RegExp('<br[^>]*>', 'gi'), "\n")
+    return text.replace(new RegExp('&nbsp;', 'gi'), ' ').replace(new RegExp('<br[^>]*>', 'gi'), '\n')
   }
   encode (text) {
-    return text.replace(' ', '&nbsp;').replace("\n", '<br />')
+    return text.replace(' ', '&nbsp;').replace('\n', '<br />')
   }
 }
 
@@ -152,7 +152,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
       }
       return str
     })
-    this.elValue.innerHTML = html
+    this.elValue.innerHTML = html || this.getHtmlText('')
 
     this.bindItems()
   }
@@ -344,7 +344,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
   }
 }
 
-class LiquidVarsEditor extends LiquidVarsEditorHelpers {
+/*export default */class LiquidVarsEditor extends LiquidVarsEditorHelpers {
   constructor (els, options) {
     super()
     this.els = els
