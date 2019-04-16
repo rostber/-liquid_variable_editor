@@ -128,15 +128,16 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
     this.bind()
   }
   renderItems () {
-    let hasLastText = false
+    let prevElLiquid = false
     let html = this.options.value.replace(new RegExp('(.*?)({{.*?}}|$)', 'gi'), (matched, text, liquid) => {
       let str = ''
       if (text) {
-        hasLastText = true
+        prevElLiquid = false
         str += this.getHtmlText(text)
       }
+      if (!text && prevElLiquid) str += this.getHtmlText('')
       if (liquid) {
-        hasLastText = false
+        prevElLiquid = true
         const liquidContent = liquid.replace(new RegExp('({{|}})', 'gi'), '').trim().split('|')
         const liquidVariable = liquidContent[0]
         let liquidDefault = null
@@ -148,7 +149,6 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
       }
       return str
     })
-    if (!hasLastText) html += this.getHtmlText('')
     this.elValue.innerHTML = html
 
     this.bindItems()
