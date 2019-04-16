@@ -13,7 +13,6 @@
   flex: 0 1;
 }
 .lve__liquid, .lve__text {
-  display: inline-block;
   vertical-align: baseline;
   min-width: 1px;
 }
@@ -24,6 +23,7 @@
   margin: 0 1px;
   background-color: #ddd;
   border-radius: 3px;
+  display: inline-block;
 }
 .lve__liquid-remove {
   position: absolute;
@@ -40,6 +40,7 @@
 }
 .lve__text {
   outline-style: none;
+  display: inline;
 }
 .lve__add {
   width: 30px;
