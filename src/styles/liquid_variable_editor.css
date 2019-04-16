@@ -1,19 +1,28 @@
+.lve {
+  border: 1px solid #ddd;
+}
 .lve__row {
   display: flex;
 }
 .lve__value {
   flex: 1 0;
+  padding: 5px 0 5px 5px;
+  cursor: text;
 }
 .lve__tools {
   flex: 0 1;
 }
+.lve__liquid, .lve__text {
+  display: inline-block;
+  vertical-align: baseline;
+  min-width: 1px;
+}
 .lve__liquid {
   position: relative;
   padding: 0 15px 0 2px;
-  display: inline-block;
   cursor: pointer;
   margin: 0 1px;
-  background-color: #eee;
+  background-color: #ddd;
   border-radius: 3px;
 }
 .lve__liquid-remove {
@@ -36,10 +45,10 @@
   width: 30px;
   height: 30px;
   cursor: pointer;
-  background-color: #eee;
+  background-color: #ddd;
   text-align: center;
+  font-size: 18px;
   line-height: 30px;
-  border-radius: 3px;
   position: relative;
 }
 
@@ -76,7 +85,7 @@
   align-items: flex-start;
   padding: 5px 5px;
   margin-bottom: 5px;
-  border-bottom: 1px solid #aaa;
+  border-bottom: 1px solid #ddd;
 }
 .lve-drop__default-label {
   flex: 0 1;
@@ -87,7 +96,7 @@
 }
 .lve-drop__default-input {
   flex: 1 0 auto;
-  border: 1px solid #aaa;
+  border: 1px solid #ddd;
   font-size: 12px;
   line-height: 15px;
   padding-left: 5px;
@@ -99,5 +108,5 @@
   padding: 2px 5px;
 }
 .lve-drop__item:hover {
-  background-color: #eee;
+  background-color: #ddd;
 }
