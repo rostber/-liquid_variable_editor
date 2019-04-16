@@ -1,8 +1,6 @@
-'use strict';
+'use strict'
 
 class LiquidVarsEditorHelpers {
-  constructor () {
-  }
   on (eventNames, els, fn) {
     this.eachFn(els, (el) => {
       for (const eventName of eventNames.split(' ')) el.addEventListener(eventName, fn)
@@ -296,8 +294,8 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
   showDrop (elDropEditLiquid) {
     this.elDropEditLiquid = elDropEditLiquid
 
-    this.elDrop.style.left = elDropEditLiquid ? elDropEditLiquid.getBoundingClientRect().left : this.elAdd.getBoundingClientRect().left
-    this.elDrop.style.top = elDropEditLiquid ? elDropEditLiquid.getBoundingClientRect().top : this.elAdd.getBoundingClientRect().top
+    this.elDrop.style.left = (elDropEditLiquid ? elDropEditLiquid.getBoundingClientRect().left : this.elAdd.getBoundingClientRect().left) + 'px'
+    this.elDrop.style.top = (elDropEditLiquid ? elDropEditLiquid.getBoundingClientRect().top : this.elAdd.getBoundingClientRect().top) + 'px'
 
     this.elDropDefault.value = elDropEditLiquid ? (elDropEditLiquid.dataset.default || '') : ''
 
@@ -346,8 +344,13 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
 class LiquidVarsEditor extends LiquidVarsEditorHelpers {
   constructor (els, options) {
     super()
-    this.eachFn(els, (el) => {
-      (new LiquidVarsEditorMain(el, options)).init()
+    this.els = els
+    this.options = options
+  }
+  init () {
+    this.eachFn(this.els, (el) => {
+      const Lve = new LiquidVarsEditorMain(el, this.options)
+      Lve.init()
     })
   }
 }
