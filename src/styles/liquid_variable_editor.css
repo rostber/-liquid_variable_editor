@@ -73,6 +73,7 @@
 }
 .lve-drop__default-wrap {
   display: flex;
+  align-items: flex-start;
   padding: 5px 5px;
   margin-bottom: 5px;
   border-bottom: 1px solid #aaa;
@@ -81,7 +82,7 @@
   flex: 0 1;
   font-size: 12px;
   line-height: 17px;
-  margin-right: 5px;
+  margin: 0 5px 0 0;
   white-space: nowrap;
 }
 .lve-drop__default-input {
