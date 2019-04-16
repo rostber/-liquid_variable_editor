@@ -63,8 +63,11 @@ class LiquidVarsEditorHelpers {
       textRange.select()
     }
   }
-  sanitize (text) {
-    return text.replace('&nbsp;', '')
+  decode (text) {
+    return text.replace(new RegExp('&nbsp;', 'gi'), ' ').replace(new RegExp('<br[^>]*>', 'gi'), "\n")
+  }
+  encode (text) {
+    return text.replace(' ', '&nbsp;').replace("\n", '<br />')
   }
 }
 
@@ -172,7 +175,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
     return `<div lve-drop class="${this.options.classDrop}"><div lve-drop-content class="${this.options.classDropContent}">${defaultWrap}${list}</div></div>`
   }
   getHtmlText (value) {
-    return `<span lve-text contenteditable="true" class="${this.options.classText}">${value}</span>`
+    return `<span lve-text contenteditable="true" class="${this.options.classText}">${this.encode(value)}</span>`
   }
   getHtmlLiquid (value, defaultValue) {
     defaultValue = defaultValue || ''
@@ -313,7 +316,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
       this.elValue.insertAdjacentHTML('beforeEnd', this.getHtmlLiquid(value, defaultValue))
     } else {
       // Вставка в середине текста
-      const text = this.sanitize(this.selectionEl.innerHTML)
+      const text = this.decode(this.selectionEl.innerHTML)
       const textLength = text.length
       const textFirst = text.slice(0, this.selectionPoistion)
       const textLast = text.slice(this.selectionPoistion, textLength)

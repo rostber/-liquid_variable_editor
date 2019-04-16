@@ -10,16 +10,18 @@
   border: 1px solid #aaa;
   padding: 5px;
 }
+#displayValue {
+  display: block;
+  width: 100%;
+  min-height: 100px;
+}
   </style>
 </head>
 <body>
   <p>
     <input type="text" class="field" value="Привет, {{visitor.first_name | default: 'Друг'}}. Твой аккаунт {{account.domain}}" />
   </p>
-  <p>
-    <input type="text" class="field" value="Привет, {{visitor.first_name | default: 'Друг'}}. Твой аккаунт {{account.domain}}" />
-  </p>
-  <p id="displayValue"></p>
+  <textarea id="displayValue" readonly></textarea>
 
   <script type="text/javascript">
 new LiquidVarsEditor(
