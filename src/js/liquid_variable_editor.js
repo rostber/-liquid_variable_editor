@@ -1,5 +1,78 @@
-/*export default */class LiquidVarsEditor {
+'use strict';
+
+class LiquidVarsEditorHelpers {
+  constructor () {
+  }
+  on (eventNames, els, fn) {
+    this.eachFn(els, (el) => {
+      for (const eventName of eventNames.split(' ')) el.addEventListener(eventName, fn)
+    })
+  }
+  addClass (els, className) {
+    this.eachFn(els, (el) => {
+      if (el.classList) el.classList.add(className)
+      else el.className += ' ' + className
+    })
+  }
+  removeClass (els, className) {
+    this.eachFn(els, (el) => {
+      if (el.classList) el.classList.remove(className)
+      else el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ')
+    })
+  }
+  eachFn (els, fn) {
+    if (!els) return false
+    if (els.length > 0) {
+      for (const el of els) {
+        fn(el)
+      }
+    } else if (els.length !== 0) fn(els)
+  }
+  getCaretPosition (element) {
+    let caretOffset = 0
+    if (typeof window.getSelection !== 'undefined') {
+      const range = window.getSelection().getRangeAt(0)
+      const preCaretRange = range.cloneRange()
+      preCaretRange.selectNodeContents(element)
+      preCaretRange.setEnd(range.endContainer, range.endOffset)
+      caretOffset = preCaretRange.toString().length
+    } else if (typeof document.selection !== 'undefined' && document.selection.type !== 'Control') {
+      const textRange = document.selection.createRange()
+      const preCaretTextRange = document.body.createTextRange()
+      preCaretTextRange.moveToElementText(element)
+      preCaretTextRange.setEndPoint('EndToEnd', textRange)
+      caretOffset = preCaretTextRange.text.length
+    }
+    return caretOffset
+  }
+  getChildIndex (childElement) {
+    const parentElement = childElement.parentNode
+    return Array.prototype.indexOf.call(parentElement.children, childElement)
+  }
+  setCaretEnd (el) {
+    el.focus()
+    if (typeof window.getSelection !== 'undefined' && typeof document.createRange !== 'undefined') {
+      var range = document.createRange()
+      range.selectNodeContents(el)
+      range.collapse(false)
+      var sel = window.getSelection()
+      sel.removeAllRanges()
+      sel.addRange(range)
+    } else if (typeof document.body.createTextRange !== 'undefined') {
+      var textRange = document.body.createTextRange()
+      textRange.moveToElementText(el)
+      textRange.collapse(false)
+      textRange.select()
+    }
+  }
+  sanitize (text) {
+    return text.replace('&nbsp;', '')
+  }
+}
+
+class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
   constructor (el, options) {
+    super()
     const defaultOptions = {
       classWrap: 'lve',
       classRow: 'lve__row',
@@ -268,69 +341,13 @@
     }
     this.options.value = value
   }
-  on (eventNames, els, fn) {
+}
+
+class LiquidVarsEditor extends LiquidVarsEditorHelpers {
+  constructor (els, options) {
+    super()
     this.eachFn(els, (el) => {
-      for (const eventName of eventNames.split(' ')) el.addEventListener(eventName, fn)
+      (new LiquidVarsEditorMain(el, options)).init()
     })
-  }
-  addClass (els, className) {
-    this.eachFn(els, (el) => {
-      if (el.classList) el.classList.add(className)
-      else el.className += ' ' + className
-    })
-  }
-  removeClass (els, className) {
-    this.eachFn(els, (el) => {
-      if (el.classList) el.classList.remove(className)
-      else el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ')
-    })
-  }
-  eachFn (els, fn) {
-    if (!els) return false
-    if (els.length > 0) {
-      for (const el of els) {
-        fn(el)
-      }
-    } else if (els.length !== 0) fn(els)
-  }
-  getCaretPosition (element) {
-    let caretOffset = 0
-    if (typeof window.getSelection !== 'undefined') {
-      const range = window.getSelection().getRangeAt(0)
-      const preCaretRange = range.cloneRange()
-      preCaretRange.selectNodeContents(element)
-      preCaretRange.setEnd(range.endContainer, range.endOffset)
-      caretOffset = preCaretRange.toString().length
-    } else if (typeof document.selection !== 'undefined' && document.selection.type !== 'Control') {
-      const textRange = document.selection.createRange()
-      const preCaretTextRange = document.body.createTextRange()
-      preCaretTextRange.moveToElementText(element)
-      preCaretTextRange.setEndPoint('EndToEnd', textRange)
-      caretOffset = preCaretTextRange.text.length
-    }
-    return caretOffset
-  }
-  getChildIndex (childElement) {
-    const parentElement = childElement.parentNode
-    return Array.prototype.indexOf.call(parentElement.children, childElement)
-  }
-  setCaretEnd (el) {
-    el.focus()
-    if (typeof window.getSelection !== 'undefined' && typeof document.createRange !== 'undefined') {
-      var range = document.createRange()
-      range.selectNodeContents(el)
-      range.collapse(false)
-      var sel = window.getSelection()
-      sel.removeAllRanges()
-      sel.addRange(range)
-    } else if (typeof document.body.createTextRange !== 'undefined') {
-      var textRange = document.body.createTextRange()
-      textRange.moveToElementText(el)
-      textRange.collapse(false)
-      textRange.select()
-    }
-  }
-  sanitize (text) {
-    return text.replace('&nbsp;', '')
   }
 }

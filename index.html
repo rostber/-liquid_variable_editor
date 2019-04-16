@@ -13,12 +13,17 @@
   </style>
 </head>
 <body>
-  <input type="text" id="field" value="Привет, {{visitor.first_name | default: 'Друг'}}. Твой аккаунт {{account.domain}}" />
+  <p>
+    <input type="text" class="field" value="Привет, {{visitor.first_name | default: 'Друг'}}. Твой аккаунт {{account.domain}}" />
+  </p>
+  <p>
+    <input type="text" class="field" value="Привет, {{visitor.first_name | default: 'Друг'}}. Твой аккаунт {{account.domain}}" />
+  </p>
   <p id="displayValue"></p>
 
   <script type="text/javascript">
 new LiquidVarsEditor(
-  document.getElementById('field'), 
+  document.querySelectorAll('.field'), 
   {
     options: [
       ['visitor.first_name', 'Имя'],
@@ -33,7 +38,7 @@ new LiquidVarsEditor(
       document.getElementById('displayValue').innerHTML = value
     }
   }
-).init()
+)
   </script>
 </body>
 </html>
