@@ -133,6 +133,7 @@
         const elText = this.elsText[this.elsText.length - 1]
         this.setCaretEnd(elText)
         this.selectionEl = elText
+        this.hideDrop()
       }
     })
     this.bindDropContent()
