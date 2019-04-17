@@ -104,12 +104,17 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
     }
     this.options = Object.assign(defaultOptions, options)
     this.el = el
+    this.elStyleDisplay = el.style.display
   }
   init () {
     this.render()
-
     this.parseContent()
     this.options.init(this.options.value)
+  }
+  destroy () {
+    this.el.style.display = this.elStyleDisplay
+    this.elWrap.parentNode.removeChild(this.elWrap)
+    this.elDrop.parentNode.removeChild(this.elDrop)
   }
   render () {
     const tmpEl = document.createElement('div')
@@ -159,8 +164,8 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
   renderDrop () {
     const tmpEl = document.createElement('div')
     tmpEl.innerHTML = this.getHtmlDropList()
-    document.body.appendChild(tmpEl)
     this.elDrop = tmpEl.firstChild
+    document.body.appendChild(this.elDrop)
     this.elDropContent = this.elDrop.querySelector('[lve-drop-content]')
   }
   getHtmlWrap () {
@@ -349,11 +354,15 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
     super()
     this.els = els
     this.options = options
+    this.Lve = null
   }
   init () {
     this.eachFn(this.els, (el) => {
-      const Lve = new LiquidVarsEditorMain(el, this.options)
-      Lve.init()
+      this.Lve = new LiquidVarsEditorMain(el, this.options)
+      this.Lve.init()
     })
+  }
+  destroy () {
+    if (this.Lve) this.Lve.destroy()
   }
 }

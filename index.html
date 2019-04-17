@@ -22,9 +22,10 @@
     <input type="text" class="field" value="Привет, {{visitor.first_name | default: 'Друг'}}. Твой аккаунт {{account.domain}}" />
   </p>
   <textarea id="displayValue" readonly></textarea>
+  <button onclick="window.lve.destroy()">Destroy</button>
 
   <script type="text/javascript">
-new LiquidVarsEditor(
+window.lve = new LiquidVarsEditor(
   document.querySelectorAll('.field'), 
   {
     options: [
@@ -40,7 +41,8 @@ new LiquidVarsEditor(
       document.getElementById('displayValue').innerHTML = value
     }
   }
-).init()
+)
+window.lve.init()
   </script>
 </body>
 </html>
