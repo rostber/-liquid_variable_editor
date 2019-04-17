@@ -67,7 +67,7 @@ class LiquidVarsEditorHelpers {
     return text.replace(new RegExp('&nbsp;', 'gi'), ' ').replace(new RegExp('<br[^>]*>', 'gi'), '\n')
   }
   encode (text) {
-    return text.replace(' ', '&nbsp;').replace('\n', '<br />')
+    return text.replace(new RegExp(' ', 'gi'), '&nbsp;').replace(new RegExp('\n', 'gi'), '<br />')
   }
 }
 
@@ -205,7 +205,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
       evt.stopPropagation()
     })
     // При клике внутри блока нужно ставить курсор на последний элемент
-    this.on('click', this.elValue, (evt) => {
+    /* this.on('click', this.elValue, (evt) => {
       evt.stopPropagation()
       evt.preventDefault()
       if (evt.target === this.elValue) {
@@ -214,7 +214,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
         this.selectionEl = elText
         this.hideDrop()
       }
-    })
+    }) */
     this.bindDropContent()
   }
   bindItems () {
