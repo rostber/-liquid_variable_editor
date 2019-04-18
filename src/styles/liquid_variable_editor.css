@@ -121,7 +121,7 @@
 .lve-drop__item:hover {
   background-color: #ddd;
 }
-.lve-drop__item:hover .lve-drop__childs {
+.lve-drop__item:hover > .lve-drop__childs {
   display: block;
 }
 .lve-drop__item_type_childs:after {
