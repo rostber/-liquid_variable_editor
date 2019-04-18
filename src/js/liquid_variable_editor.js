@@ -27,31 +27,31 @@ class LiquidVarsEditorHelpers {
     } else if (els.length !== 0) fn(els)
   }
   createRange (node, chars, range) {
-      if (!range) {
-        range = document.createRange()
-        range.selectNode(node)
-        range.setStart(node, 0)
-      }
+    if (!range) {
+      range = document.createRange()
+      range.selectNode(node)
+      range.setStart(node, 0)
+    }
 
-      if (chars.count === 0) {
-          range.setEnd(node, chars.count)
-      } else if (node && chars.count >0) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          if (node.textContent.length < chars.count) {
-            chars.count -= node.textContent.length
-          } else {
-            range.setEnd(node, chars.count)
-            chars.count = 0
-          }
+    if (chars.count === 0) {
+      range.setEnd(node, chars.count)
+    } else if (node && chars.count > 0) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node.textContent.length < chars.count) {
+          chars.count -= node.textContent.length
         } else {
-          for (var lp = 0; lp < node.childNodes.length; lp++) {
-            range = this.createRange(node.childNodes[lp], chars, range)
+          range.setEnd(node, chars.count)
+          chars.count = 0
+        }
+      } else {
+        for (var lp = 0; lp < node.childNodes.length; lp++) {
+          range = this.createRange(node.childNodes[lp], chars, range)
 
-            if (chars.count === 0) {
-               break;
-            }
+          if (chars.count === 0) {
+            break
           }
         }
+      }
     }
     return range
   }
@@ -216,7 +216,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
   getHtmlDropList () {
     const defaultInput = `<input type="text" lve-drop-default class="${this.options.classDefaultInput}" />`
     const defaultWrap = `<div class="${this.options.classDefaultWrap}"><label class="${this.options.classDefaultLabel}">${this.options.htmlDefaultLabel}</label>${defaultInput}</div>`
-    
+
     this.optionsKeys = {}
     const eachOptions = (items) => {
       let html = ''
@@ -230,7 +230,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
       return html
     }
     const list = eachOptions(this.options.options)
-    
+
     return `<div lve-drop class="${this.options.classDrop}"><div lve-drop-content class="${this.options.classDropContent}">${defaultWrap}<div class="${this.options.classDropList}">${list}</div></div></div>`
   }
   getHtmlText (value) {
