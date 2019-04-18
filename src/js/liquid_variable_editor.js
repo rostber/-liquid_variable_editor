@@ -275,10 +275,10 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
     this.on('keydown', this.elsText, (evt) => {
       const position = this.getCaretPosition(evt.target)
 
-      // Блокировать ввод liquid-переменных
+      // Блокировать ввод liquid
       setTimeout(() => {
-        if (new RegExp('{{', 'gi').test(evt.target.innerHTML)) {
-          evt.target.innerHTML = evt.target.innerHTML.replace(new RegExp('{{', 'gi'), '{')
+        if (new RegExp('{{|{%', 'gi').test(evt.target.innerHTML)) {
+          evt.target.innerHTML = evt.target.innerHTML.replace(new RegExp('{{|{%', 'gi'), '{')
           this.setCaretPosition(evt.target, position)
         }
       }, 0)
