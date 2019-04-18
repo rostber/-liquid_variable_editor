@@ -179,13 +179,14 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
   }
   renderItems () {
     let prevElLiquid = false
+    let firstEl = true
     let html = this.options.value.replace(new RegExp('(.*?)({{.*?}}|$)', 'gi'), (matched, text, liquid) => {
       let str = ''
       if (text) {
         prevElLiquid = false
         str += this.getHtmlText(text)
       }
-      if (!text && prevElLiquid) str += this.getHtmlText('')
+      if (!text && (prevElLiquid || firstEl)) str += this.getHtmlText('')
       if (liquid) {
         prevElLiquid = true
         const liquidContent = liquid.replace(new RegExp('({{|}})', 'gi'), '').trim().split('|')
@@ -196,6 +197,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
           liquidDefault = res[2] || res[3] || null
         }
         str += this.getHtmlLiquid(liquidVariable.trim(), liquidDefault)
+        firstEl = false
       }
       return str
     })
