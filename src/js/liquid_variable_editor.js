@@ -26,6 +26,45 @@ class LiquidVarsEditorHelpers {
       }
     } else if (els.length !== 0) fn(els)
   }
+  createRange (node, chars, range) {
+      if (!range) {
+        range = document.createRange()
+        range.selectNode(node)
+        range.setStart(node, 0)
+      }
+
+      if (chars.count === 0) {
+          range.setEnd(node, chars.count)
+      } else if (node && chars.count >0) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (node.textContent.length < chars.count) {
+            chars.count -= node.textContent.length
+          } else {
+            range.setEnd(node, chars.count)
+            chars.count = 0
+          }
+        } else {
+          for (var lp = 0; lp < node.childNodes.length; lp++) {
+            range = this.createRange(node.childNodes[lp], chars, range)
+
+            if (chars.count === 0) {
+               break;
+            }
+          }
+        }
+    }
+    return range
+  }
+  setCaretPosition (element, position) {
+    console.log(position)
+    const selection = window.getSelection()
+    const range = this.createRange(element.parentNode, { count: position })
+    if (range) {
+      range.collapse(false)
+      selection.removeAllRanges()
+      selection.addRange(range)
+    }
+  }
   getCaretPosition (element) {
     let caretOffset = 0
     if (typeof window.getSelection !== 'undefined') {
@@ -67,7 +106,7 @@ class LiquidVarsEditorHelpers {
     return text.replace(new RegExp('&nbsp;', 'gi'), ' ').replace(new RegExp('<br[^>]*>', 'gi'), '\n')
   }
   encode (text) {
-    return text.replace(new RegExp(' ', 'gi'), '&nbsp;').replace(new RegExp('\n', 'gi'), '<br />')
+    return text.replace(new RegExp(' ', 'gi'), '&nbsp;').replace(new RegExp('\\n', 'gi'), '<br />')
   }
 }
 
@@ -87,7 +126,10 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
       classDropContent: 'lve-drop__content',
       classDropVisible: 'lve-drop_state_visible',
       classDropAlignLeft: 'lve-drop_align_left',
+      classDropChilds: 'lve-drop__childs',
+      classDropList: 'lve-drop__list',
       classDropItem: 'lve-drop__item',
+      classDropItemChilds: 'lve-drop__item_type_childs',
       classDefaultWrap: 'lve-drop__default-wrap',
       classDefaultLabel: 'lve-drop__default-label',
       classDefaultInput: 'lve-drop__default-input',
@@ -130,8 +172,8 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
     this.elAdd = el.querySelector('[lve-add]')
     this.elAddDrop = el.querySelector('[lve-drop]')
 
-    this.renderItems()
     this.renderDrop()
+    this.renderItems()
 
     this.bind()
   }
@@ -174,23 +216,29 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
   getHtmlDropList () {
     const defaultInput = `<input type="text" lve-drop-default class="${this.options.classDefaultInput}" />`
     const defaultWrap = `<div class="${this.options.classDefaultWrap}"><label class="${this.options.classDefaultLabel}">${this.options.htmlDefaultLabel}</label>${defaultInput}</div>`
-    const list = this.options.options.map((option) => {
-      return `<div lve-drop-item class="${this.options.classDropItem}" data-value="${option[0]}">${option[1]}</div>`
-    }).join('')
-    return `<div lve-drop class="${this.options.classDrop}"><div lve-drop-content class="${this.options.classDropContent}">${defaultWrap}${list}</div></div>`
+    
+    this.optionsKeys = {}
+    const eachOptions = (items) => {
+      let html = ''
+      for (const item of items) {
+        if (item.childs) html += `<div class="${this.options.classDropItem} ${this.options.classDropItemChilds}">${item.name}<div class="${this.options.classDropChilds}">${eachOptions(item.childs)}</div></div>`
+        else {
+          html += `<div lve-drop-item class="${this.options.classDropItem}" data-value="${item.key}">${item.name}</div>`
+          this.optionsKeys[item.key] = item.name
+        }
+      }
+      return html
+    }
+    const list = eachOptions(this.options.options)
+    
+    return `<div lve-drop class="${this.options.classDrop}"><div lve-drop-content class="${this.options.classDropContent}">${defaultWrap}<div class="${this.options.classDropList}">${list}</div></div></div>`
   }
   getHtmlText (value) {
     return `<span lve-text contenteditable="true" class="${this.options.classText}">${this.encode(value)}</span>`
   }
   getHtmlLiquid (value, defaultValue) {
     defaultValue = defaultValue || ''
-    let label = value
-    for (const option of this.options.options) {
-      if (option[0] === value) {
-        label = option[1]
-        break
-      }
-    }
+    let label = this.optionsKeys[value] ? this.optionsKeys[value] : value
     return `<span lve-liquid data-variable="${value}" data-default="${defaultValue}" class="${this.options.classLiquid}">${label}<span lve-liquid-remove class="${this.options.classLiquidRemove}">${this.options.htmlLiquidRemove}</span></span>`
   }
   bind () {
@@ -222,6 +270,20 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
     this.elsLiquid = this.elValue.querySelectorAll('[lve-liquid]')
     this.elsLiquidRemove = this.elValue.querySelectorAll('[lve-liquid-remove]')
     this.elsDrop = this.elWrap.querySelectorAll('[lve-drop]')
+
+    this.on('keydown', this.elsText, (evt) => {
+      const position = this.getCaretPosition(evt.target)
+
+      // Блокировать ввод liquid-переменных
+      setTimeout(() => {
+        if (new RegExp('{{', 'gi').test(evt.target.innerHTML)) {
+          evt.target.innerHTML = evt.target.innerHTML.replace(new RegExp('{{', 'gi'), '{')
+          setTimeout(() => {
+            this.setCaretPosition(evt.target, position)
+          }, 0)
+        }
+      }, 0)
+    })
 
     this.on('keydown', this.elsText, (evt) => {
       this.options.keydown(evt)

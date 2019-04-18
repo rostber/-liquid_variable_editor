@@ -29,9 +29,32 @@ window.lve = new LiquidVarsEditor(
   document.querySelectorAll('.field'), 
   {
     options: [
-      ['visitor.first_name', 'Имя'],
-      ['visitor.email', 'Email'],
-      ['account.domain', 'Домен'],
+      {
+        name: 'Визитор',
+        childs: [
+          {
+            name: 'Имя',
+            key: 'visitor.first_name'
+          },
+          {
+            name: 'Фамилия',
+            key: 'visitor.last_name'
+          },
+          {
+            name: 'E-mail',
+            key: 'visitor.email'
+          }
+        ]
+      },
+      {
+        name: 'Аккаунт',
+        childs: [
+          {
+            name: 'Домен',
+            key: 'account.domain'
+          }
+        ]
+      }
     ],
     classWrap: 'field',
     change: (value) => {
