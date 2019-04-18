@@ -56,9 +56,8 @@ class LiquidVarsEditorHelpers {
     return range
   }
   setCaretPosition (element, position) {
-    console.log(position)
     const selection = window.getSelection()
-    const range = this.createRange(element.parentNode, { count: position })
+    const range = this.createRange(element, { count: position })
     if (range) {
       range.collapse(false)
       selection.removeAllRanges()
@@ -280,9 +279,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
       setTimeout(() => {
         if (new RegExp('{{', 'gi').test(evt.target.innerHTML)) {
           evt.target.innerHTML = evt.target.innerHTML.replace(new RegExp('{{', 'gi'), '{')
-          setTimeout(() => {
-            this.setCaretPosition(evt.target, position)
-          }, 0)
+          this.setCaretPosition(evt.target, position)
         }
       }, 0)
     })
