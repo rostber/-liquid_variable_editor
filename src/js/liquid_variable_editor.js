@@ -335,7 +335,6 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
 
     this.on('click', this.elsLiquidRemove, (evt) => {
       let el = evt.target.closest('[lve-liquid-remove]') || evt.target
-      console.log(el)
       evt.stopPropagation()
       const item = el.parentNode
       item.parentNode.removeChild(item)
