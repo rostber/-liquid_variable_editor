@@ -177,17 +177,14 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
     this.bind()
   }
   renderItems () {
-    let prevElLiquid = false
-    let firstEl = true
+    let appEndText = true
     let html = this.options.value.replace(new RegExp('(.*?)({{.*?}}|$)', 'gi'), (matched, text, liquid) => {
       let str = ''
       if (text) {
-        prevElLiquid = false
         str += this.getHtmlText(text)
+        appEndText = false
       }
-      if (!text && (prevElLiquid || firstEl)) str += this.getHtmlText('')
       if (liquid) {
-        prevElLiquid = true
         const liquidContent = liquid.replace(new RegExp('({{|}})', 'gi'), '').trim().split('|')
         const liquidVariable = liquidContent[0]
         let liquidDefault = null
@@ -195,11 +192,13 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
           const res = new RegExp('default: !?("([^"]*)"|\'([^\']*)\')', 'gi').exec(liquidContent[1])
           liquidDefault = res[2] || res[3] || null
         }
+        if (!text) str += this.getHtmlText('')
         str += this.getHtmlLiquid(liquidVariable.trim(), liquidDefault)
-        firstEl = false
+        appEndText = true
       }
       return str
     })
+    if (appEndText) html += this.getHtmlText('')
     this.elValue.innerHTML = html || this.getHtmlText('')
 
     this.bindItems()
@@ -287,13 +286,13 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
     this.on('keydown', this.elsText, (evt) => {
       this.options.keydown(evt)
 
-      // Определяется нажатие backspace для удаление liquid элементов
+      // Определяется нажатие backspace для удаления liquid элементов
       const key = evt.keyCode || evt.charCode
+      const elsItems = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
       if (key === 8 || key === 46) {
         if (this.getCaretPosition(evt.target) === 0) {
           const childIndex = this.getChildIndex(this.selectionEl)
           if (childIndex > 0) {
-            const elsItems = this.elValue.querySelectorAll('[lve-text], [lve-liquid]')
             const prevChildIndex = childIndex - 1
             elsItems[prevChildIndex].parentNode.removeChild(elsItems[prevChildIndex])
 

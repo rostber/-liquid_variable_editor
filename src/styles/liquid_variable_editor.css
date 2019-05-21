@@ -10,10 +10,7 @@
   cursor: text;
   font-size: 14px;
   line-height: 1.3em;
-}
-.lve__value:before {
-  content: '';
-  display: inline-block;
+  overflow: hidden;
 }
 .lve__tools {
   flex: 0 1;
