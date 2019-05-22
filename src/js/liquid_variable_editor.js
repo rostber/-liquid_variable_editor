@@ -309,7 +309,7 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
 
       setTimeout(() => {
         // Стрелка "влево"
-        if (key === 37 && this.getCaretPosition(evt.target) == 0) {
+        if (key === 37 && this.getCaretPosition(evt.target) === 0) {
           const childIndex = this.getChildIndex(evt.target)
           if (childIndex > 1) this.setCaretEnd(elsItems[childIndex - 2])
         }
