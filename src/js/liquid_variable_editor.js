@@ -308,13 +308,10 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
       }
 
       setTimeout(() => {
-        // Стрелка "влево"
-        if (key === 37 && this.getCaretPosition(evt.target) === 0) {
+        if (key === 37 && this.getCaretPosition(evt.target) === 0) { // Стрелка "влево"
           const childIndex = this.getChildIndex(evt.target)
           if (childIndex > 1) this.setCaretEnd(elsItems[childIndex - 2])
-        }
-        // Стрелка "вправо"
-        else if (key === 39 && this.getCaretPosition(evt.target) === evt.target.textContent.length) {
+        } else if (key === 39 && this.getCaretPosition(evt.target) === evt.target.textContent.length) { // Стрелка "вправо"
           const childIndex = this.getChildIndex(evt.target)
           if (elsItems[childIndex + 2]) elsItems[childIndex + 2].focus()
         }
