@@ -105,7 +105,7 @@ class LiquidVarsEditorHelpers {
     return text.replace(new RegExp('&nbsp;', 'gi'), ' ').replace(new RegExp('<br[^>]*>', 'gi'), '\n')
   }
   encode (text) {
-    return text.replace(new RegExp(' ', 'gi'), '&nbsp;').replace(new RegExp('\\n', 'gi'), '<br />')
+    return text.replace(new RegExp('\\n', 'gi'), '<br />')
   }
 }
 

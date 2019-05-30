@@ -21,7 +21,9 @@
   <p>
     <input type="text" class="field" value="Привет, {{visitor.first_name | default: 'Друг'}}. Твой аккаунт {{account.domain}}" />
   </p>
-  <textarea id="displayValue" readonly></textarea>
+  <pre>
+    <xmp id="displayValue"></xmp>
+  </pre>
   <button onclick="window.lve.destroy()">Destroy</button>
 
   <script type="text/javascript">
