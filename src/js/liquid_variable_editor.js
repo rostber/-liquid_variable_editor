@@ -392,8 +392,9 @@ class LiquidVarsEditorMain extends LiquidVarsEditorHelpers {
       // Вставка в середине текста
       const text = this.decode(this.selectionEl.innerHTML)
       const textLength = text.length
-      const textFirst = text.slice(0, this.selectionPoistion)
-      const textLast = text.slice(this.selectionPoistion, textLength)
+      const position = this.selectionPoistion === undefined ? textLength : this.selectionPoistion
+      const textFirst = text.slice(0, position)
+      const textLast = text.slice(position, textLength)
 
       this.selectionEl.insertAdjacentHTML('beforebegin', this.getHtmlText(textFirst))
       this.selectionEl.insertAdjacentHTML('afterend', this.getHtmlText(textLast))
